@@ -117,33 +117,39 @@ var NodeBittrexApi = function() {
   var sendRequestCallback = function(callback, op) {
     var start = Date.now();
 
-    request(op, function(error, result, body) {
-      ((opts.verbose) ? console.log("requested from " + op.uri + " in: %ds", (Date.now() - start) / 1000) : '');
-      if (!body || !result || result.statusCode != 200) {
-        var errorObj = {
-          success: false,
-          message: 'URL request error',
-          error: error,
-          result: result,
-        };
-        return ((opts.inverse_callback_arguments) ?
-          callback(errorObj, null) :
-          callback(null, errorObj));
-      } else {
-        try {
-          result = JSON.parse(body);
-        } catch (err) {}
-        if (!result || !result.success) {
-          // error returned by bittrex API - forward the result as an error
+    const handler = (error, result, body) => {
+        ((opts.verbose) ? console.log("requested from " + op.uri + " in: %ds", (Date.now() - start) / 1000) : '');
+        if (!body || !result || result.statusCode != 200) {
+          var errorObj = {
+            success: false,
+            message: 'URL request error',
+            error: error,
+            result: result,
+          };
           return ((opts.inverse_callback_arguments) ?
-            callback(result, null) :
-            callback(null, result));
+            callback(errorObj, null) :
+            callback(null, errorObj));
+        } else {
+          try {
+            result = JSON.parse(body);
+          } catch (err) {}
+          if (!result || !result.success) {
+            // error returned by bittrex API - forward the result as an error
+            return ((opts.inverse_callback_arguments) ?
+              callback(result, null) :
+              callback(null, result));
+          }
+          return ((opts.inverse_callback_arguments) ?
+            callback(null, ((opts.cleartext) ? body : result)) :
+            callback(((opts.cleartext) ? body : result), null));
         }
-        return ((opts.inverse_callback_arguments) ?
-          callback(null, ((opts.cleartext) ? body : result)) :
-          callback(((opts.cleartext) ? body : result), null));
       }
-    });
+
+    if (op.method === 'GET') {
+        cloudscraper.get(opt.uri, handler)
+    } else {
+        cloudscraper.post(opt.uri, opt, handler)
+    }
   };
 
   var publicApiCall = function(url, callback, options) {
