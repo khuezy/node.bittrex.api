@@ -146,9 +146,9 @@ var NodeBittrexApi = function() {
       }
 
     if (op.method === 'GET') {
-        cloudscraper.get(opt.uri, handler)
+        cloudscraper.get(op.uri, handler)
     } else {
-        cloudscraper.post(opt.uri, opt, handler)
+        cloudscraper.post(op.uri, opt, handler)
     }
   };
 
