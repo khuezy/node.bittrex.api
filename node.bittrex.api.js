@@ -168,6 +168,7 @@ var NodeBittrexApi = function() {
   };
 
   var connectws = function(callback) {
+    wsclient && wsclient.end()
     cloudscraper.get('https://bittrex.com/', function(error, response, body) {
       if (error) {
         console.error('Cloudscraper error occurred');
