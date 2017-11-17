@@ -181,8 +181,8 @@ var NodeBittrexApi = function() {
         wsclient = new signalR.client(
           opts.websockets_baseurl,
           opts.websockets_hubs,
-         undefined,
-         true
+          12,
+          true
         );
         if (opts.headers) {
           wsclient.headers['User-Agent'] = opts.headers.user_agent;
